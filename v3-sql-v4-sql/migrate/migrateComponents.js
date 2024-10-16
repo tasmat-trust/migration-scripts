@@ -52,10 +52,7 @@ async function migrateTables(tables) {
 
   if (isSQLITE) {
     componentRelationsTables = (
-      await dbV3('sqlite_master')
-        .select('name')
-        .where('name', 'like', '%_components')
-        .where('table_schema', process.env.DATABASE_V3_DATABASE)
+      await dbV3('sqlite_master').select('name').where('name', 'like', '%_components')
     )
       .map((row) => row.name)
       .filter((item) => !componentsToMigrate.includes(item));
@@ -66,6 +63,7 @@ async function migrateTables(tables) {
       await dbV3('information_schema.tables')
         .select('table_name')
         .where('table_name', 'like', '%_components')
+        .where('table_schema', process.env.DATABASE_V3_DATABASE)
     )
       .map((row) => row.table_name || row.TABLE_NAME)
       .filter((item) => !componentsToMigrate.includes(item));
