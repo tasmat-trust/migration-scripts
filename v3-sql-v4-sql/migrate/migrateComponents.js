@@ -35,7 +35,8 @@ async function migrateTables(tables) {
       const data = JSON.parse(item.value);
 
       return data.collectionName;
-    });
+    })
+    .filter((table) => tables.includes(table));
 
   let componentRelationsTables = [];
 
