@@ -4,8 +4,6 @@ const { snakeCase } = require('lodash/fp');
 const { dbV3 } = require('../config/database');
 const { migrateUids } = require('./helpers/migrateValues');
 const { resolveSourceTableName } = require('./helpers/tableNameHelpers');
-const pluralize = require('pluralize');
-const { singular } = pluralize;
 
 const processedTables = ['upload_file', 'upload_file_morph'];
 const newTables = ['files', 'files_related_morphs'];
@@ -22,10 +20,22 @@ async function migrateTables() {
 
   const componentsMap = modelsDefs
     .map((item) => JSON.parse(item.value))
+    .flatMap((item) => {
+      return Object.entries(item.attributes)
+        .filter(([_, attribute]) => attribute.via === 'related' && attribute.plugin === 'upload')
+        .map(([key]) => ({
+          collectionName: item.collectionName,
+          field: key,
+          uid: migrateUids(item.uid),
+        }));
+    })
     .reduce(
       (acc, item) => ({
         ...acc,
-        [item.collectionName]: migrateUids(item.uid),
+        [item.collectionName]: {
+          ...acc[item.collectionName],
+          [item.field]: item.uid,
+        },
       }),
       {}
     );
@@ -35,7 +45,7 @@ async function migrateTables() {
       return {
         ...acc,
         ...{ [snakeCase(key)]: item[key] },
-        folder_path: "/"
+        folder_path: '/',
       };
     }, {});
 
@@ -52,7 +62,7 @@ async function migrateTables() {
     const newItem = {
       ...item,
       file_id: item.upload_file_id,
-      related_type: componentsMap[item.related_type] || item.related_type,
+      related_type: componentsMap[item.related_type]?.[item.field] || item.related_type,
     };
 
     return omit(newItem, ['upload_file_id', 'id']);
