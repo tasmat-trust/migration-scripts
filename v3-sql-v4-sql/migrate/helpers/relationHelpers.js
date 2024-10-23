@@ -49,7 +49,7 @@ function processRelation({ key, value, collectionName, uid, isComponent }, relat
           attribute: key,
           type: 'manyToMany',
           modelF: value.collection,
-          attributeF: value.attribute,
+          attributeF: value.via,
           isComponent
         },
         relations
@@ -180,8 +180,8 @@ async function migrateRelations(tables, relations) {
       var sourceTable = v3RelationTables.find(
         (t) =>
           t === `${relation.model}__${relation.attribute}` ||
-          t.startsWith(`${relation.model}_${relation.attribute}__${snakeCase(relation.modelF)}`) ||
-          t.startsWith(`${relation.model}_${relation.attribute}__${relation.modelF}`) ||
+          t.startsWith(`${relation.model}_${relation.attribute}__${snakeCase(relation.modelF)}_${relation.attributeF}`) ||
+          t.startsWith(`${relation.model}_${relation.attribute}__${relation.modelF}_${relation.attributeF}`) ||
           (t.startsWith(`${relation.modelF}`) &&
             t.endsWith(`__${relation.model}_${relation.attribute}`))
       );
