@@ -183,10 +183,10 @@ async function migrateRelations(tables, relations) {
           t === `${relation.model}_${relation.attribute}__${pluralize(relation.modelF)}_${relation.attributeF}` ||
           t.startsWith(`${relation.model}_${relation.attribute}__${snakeCase(relation.modelF)}_${relation.attributeF}`) ||
           t.startsWith(`${relation.model}_${relation.attribute}__${relation.modelF}_${relation.attributeF}`) ||
+          t.startsWith(`${relation.attributeF}_${relation.attribute}__${relation.attribute}_${relation.attributeF}`) || // Target pupils_groups__groups__pupils
           (t.startsWith(`${relation.modelF}`) &&
             t.endsWith(`__${relation.model}_${relation.attribute}`))
       );
-
       if (sourceTable) {
         await migrateManyToManyRelation(relation, sourceTable);
       }
